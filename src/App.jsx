@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import School from "./School";
+import { Input } from "@/components/ui/input";
 
 import {
   Select,
@@ -12,6 +13,9 @@ import {
 export default function App() {
   const [data, setData] = useState([]);
   const [obcine, setObcine] = useState([]);
+  const [izO, setIzO] = useState("all");
+
+  const [text, setText] = useState("");
 
   async function getSchools() {
     const response = await fetch("http://static.404.si/grace/");
@@ -35,28 +39,39 @@ export default function App() {
       <div className="container mb-4 mt-4">
         <div className="flex gap-4">
           {/* Ne pozabi na onValueChange event. */}
-          <Select>
+          <Select className="inline" onValueChange={(value) => setIzO(value)}>
             <SelectTrigger className="w-[180px]">
               <SelectValue placeholder="Regija" />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">Vse občine</SelectItem>
-              {/* Uporabi map funkcijo, ki se bo sprehodila, čez vse občine in jih prikazala v obliki SelectItemov. */}
+              {obcine.map((obcina) => (
+                <SelectItem value={obcina}>{obcina}</SelectItem>
+              ))}
             </SelectContent>
           </Select>
+          <Input
+            placeholder="Vpišite poštno številko šole"
+            type="number"
+            onChange={(value) => setText(value.currentTarget.value)}
+          />
 
           {/* Dodaj input, ki bo omogčal iskanje po poštni številki. Ne pozabi na onChange event. */}
         </div>
       </div>
       <div className="container">
-        <div class="">
+        <div className=" grid grid-cols-3 gap-4">
           {/* Uporabi map funkcijo, ki se bo sprehodila, čez vse šole in jih prikazala v obliki kartic. */}
           {/* Dodaj dva filtra: enega za filtriranje po obcini, drugega za filtriranje glede na poštno številko šole. */}
-          {data.map((school) => (
-            <div>
+          {data
+            .filter(
+              (po) =>
+                text == "" || po.postna_stevilka.toString().startsWith(text),
+            )
+            .filter((ob) => izO == "all" || ob.obcina == izO)
+            .map((school) => (
               <School data={school}></School>
-            </div>
-          ))}
+            ))}
         </div>
       </div>
     </>
